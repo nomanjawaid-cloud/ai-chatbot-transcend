@@ -18,8 +18,8 @@ export default function Header({ userName, userEmail, onLogout }: HeaderProps) {
             <button className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
               <Menu className="w-6 h-6 text-gray-600 dark:text-gray-300" />
             </button>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+<div className="flex items-center gap-3">
+              {/* <div className="w-10 h-10 bg-blue-900 rounded-lg flex items-center justify-center">
                 <svg
                   className="w-6 h-6 text-white"
                   fill="none"
@@ -33,13 +33,20 @@ export default function Header({ userName, userEmail, onLogout }: HeaderProps) {
                     d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
                   />
                 </svg>
+              </div> */}
+              <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
+                <img 
+                  src="/logo pic.png" 
+                  alt="Logo" 
+                  className="w-full h-full object-cover" 
+                />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-800 dark:text-white">
                   AI Assistant
                 </h1>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Your intelligent companion
+                  Blueprint Management
                 </p>
               </div>
             </div>
@@ -47,25 +54,10 @@ export default function Header({ userName, userEmail, onLogout }: HeaderProps) {
 
           {/* User Info and Logout */}
           <div className="flex items-center gap-4">
-            {/* User Profile */}
-            <div className="hidden sm:flex items-center gap-3 px-4 py-2 bg-gray-50 dark:bg-gray-700 rounded-xl">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
-                {userName.charAt(0).toUpperCase()}
-              </div>
-              <div className="text-left">
-                <p className="text-sm font-semibold text-gray-800 dark:text-white">
-                  {userName}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {userEmail}
-                </p>
-              </div>
-            </div>
-
             {/* Logout Button */}
             <button
               onClick={onLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-all font-medium shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg transition-colors font-medium"
             >
               <LogOut className="w-5 h-5" />
               <span className="hidden sm:inline">Logout</span>

@@ -1,7 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User } from './Icons';
+import ReactMarkdown from 'react-markdown';
+
+import { Bot, User, Send } from "lucide-react";
+
+export const Icons = {
+  bot: Bot,
+  user: User,
+  send: Send,
+};
 import { queryBlueprints } from '@/src/lib/api';
 
 interface Message {
@@ -10,6 +18,7 @@ interface Message {
   sender: 'user' | 'bot';
   timestamp: Date;
   isError?: boolean;
+  isStreaming?: boolean;
 }
 
 interface ChatBotProps {
@@ -27,7 +36,9 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const streamingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -37,10 +48,73 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
     scrollToBottom();
   }, [messages]);
 
+  // Cleanup streaming interval on unmount
+  useEffect(() => {
+    return () => {
+      if (streamingIntervalRef.current) {
+        clearInterval(streamingIntervalRef.current);
+      }
+    };
+  }, []);
+
+  // Streaming effect function
+  const streamMessage = (fullText: string, messageId: string, isError: boolean = false) => {
+    let currentIndex = 0;
+    const chunkSize = 2; // Characters to add per interval
+    const intervalTime = 20; // Milliseconds between chunks (faster = 20ms, slower = 50ms)
+
+    // Create initial empty message
+    const initialMessage: Message = {
+      id: messageId,
+      text: '',
+      sender: 'bot',
+      timestamp: new Date(),
+      isError,
+      isStreaming: true,
+    };
+
+    setMessages((prev) => [...prev, initialMessage]);
+    setStreamingMessageId(messageId);
+
+    // Clear any existing interval
+    if (streamingIntervalRef.current) {
+      clearInterval(streamingIntervalRef.current);
+    }
+
+    // Stream the text character by character
+    streamingIntervalRef.current = setInterval(() => {
+      currentIndex += chunkSize;
+
+      if (currentIndex >= fullText.length) {
+        // Streaming complete
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === messageId
+              ? { ...msg, text: fullText, isStreaming: false }
+              : msg
+          )
+        );
+        setStreamingMessageId(null);
+        if (streamingIntervalRef.current) {
+          clearInterval(streamingIntervalRef.current);
+          streamingIntervalRef.current = null;
+        }
+      } else {
+        // Update message with more text
+        const currentText = fullText.substring(0, currentIndex);
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === messageId ? { ...msg, text: currentText } : msg
+          )
+        );
+      }
+    }, intervalTime);
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || streamingMessageId) return; // Prevent sending while streaming
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -57,28 +131,21 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
     try {
       // Call the blueprint query API
       const response = await queryBlueprints({ prompt: userQuery });
-      
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: response.response || 'No results found.',
-        sender: 'bot',
-        timestamp: new Date(),
-      };
-      
-      setMessages((prev) => [...prev, botMessage]);
-    } catch (error) {
-      // Handle errors
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: error instanceof Error ? error.message : 'Failed to process your query. Please try again.',
-        sender: 'bot',
-        timestamp: new Date(),
-        isError: true,
-      };
-      
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
       setIsTyping(false);
+      
+      const messageId = (Date.now() + 1).toString();
+      const responseText = response.response || 'No results found.';
+      
+      // Start streaming the response
+      streamMessage(responseText, messageId, false);
+      
+    } catch (error) {
+      setIsTyping(false);
+      
+      // Stream error message
+      const messageId = (Date.now() + 1).toString();
+      const errorText = error instanceof Error ? error.message : 'Failed to process your query. Please try again.';
+      streamMessage(errorText, messageId, true);
     }
   };
 
@@ -90,11 +157,15 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+    <div className="flex flex-col h-full bg-white dark:bg-gray-900 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 flex items-center gap-3">
-        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-          <Bot className="w-6 h-6 text-blue-600" />
+      <div className="bg-blue-900 px-6 py-4 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
+          <img 
+            src="/logo pic.png" 
+            alt="Bot Logo" 
+            className="w-5 h-5 object-cover bg-white" 
+          />
         </div>
         <div>
           <h2 className="text-white font-semibold text-lg">AI Assistant</h2>
@@ -114,14 +185,18 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                 message.sender === 'user'
-                  ? 'bg-blue-600'
-                  : 'bg-purple-600'
+                  ? 'bg-red-600'
+                  : 'bg-white'
               }`}
             >
               {message.sender === 'user' ? (
                 <User className="w-5 h-5 text-white" />
               ) : (
-                <Bot className="w-5 h-5 text-white" />
+                <img 
+                  src="/logo pic.png" 
+                  alt="Bot Logo" 
+                  className="w-full h-full object-cover rounded-full" 
+                />
               )}
             </div>
             <div
@@ -138,7 +213,9 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
                     : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-tl-sm shadow-md'
                 }`}
               >
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+                <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert">
+                  <ReactMarkdown>{message.text}</ReactMarkdown>
+                </div>
               </div>
               <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 px-2">
                 {formatTime(message.timestamp)}
@@ -149,8 +226,12 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
 
         {isTyping && (
           <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
-              <Bot className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 overflow-hidden">
+              <img 
+                src="/logo pic.png" 
+                alt="Bot Logo" 
+                className="w-full h-full object-cover" 
+              />
             </div>
             <div className="bg-white dark:bg-gray-700 px-4 py-3 rounded-2xl rounded-tl-sm shadow-md">
               <div className="flex gap-1">
@@ -177,7 +258,7 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
           <button
             type="submit"
             disabled={!inputValue.trim()}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 font-medium shadow-lg hover:shadow-xl"
+            className="px-6 py-3 bg-blue-900 text-white rounded-lg hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 font-medium"
           >
             <Send className="w-5 h-5" />
             Send

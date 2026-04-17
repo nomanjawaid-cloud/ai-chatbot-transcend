@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff } from './Icons';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { loginUser, storeTokens, storeUser, type User } from '@/src/lib/api';
 
 interface SignInProps {
@@ -67,32 +67,25 @@ export default function SignIn({ onSignIn }: SignInProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
       <div className="w-full max-w-md">
         {/* Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700">
           {/* Logo/Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <svg
-                className="w-10 h-10 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                />
-              </svg>
+            <div className="w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4 overflow-hidden">
+              <img 
+                src="/logo pic.png" 
+                alt="Logo" 
+                className="w-full h-full object-cover bg-white" 
+              />
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
+
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
               Welcome Back
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Sign in to continue to your AI Assistant
+              Sign in to your account
             </p>
           </div>
 
@@ -147,8 +140,8 @@ export default function SignIn({ onSignIn }: SignInProps) {
                   className={`block w-full pl-10 pr-3 py-3 border ${
                     errors.email
                       ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500'
-                  } rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 transition-all`}
+                      : 'border-gray-300 dark:border-gray-600 focus:ring-blue-900 focus:border-blue-900'
+                  } rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 transition-colors`}
                   placeholder="you@example.com"
                 />
               </div>
@@ -179,8 +172,8 @@ export default function SignIn({ onSignIn }: SignInProps) {
                   className={`block w-full pl-10 pr-12 py-3 border ${
                     errors.password
                       ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500'
-                  } rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 transition-all`}
+                      : 'border-gray-300 dark:border-gray-600 focus:ring-blue-900 focus:border-blue-900'
+                  } rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 transition-colors`}
                   placeholder="••••••••"
                 />
                 <button
@@ -219,7 +212,7 @@ export default function SignIn({ onSignIn }: SignInProps) {
               </div>
               <button
                 type="button"
-                className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                className="text-sm font-medium text-blue-900 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 Forgot password?
               </button>
@@ -229,7 +222,7 @@ export default function SignIn({ onSignIn }: SignInProps) {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 bg-blue-900 hover:bg-blue-800 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
@@ -266,7 +259,7 @@ export default function SignIn({ onSignIn }: SignInProps) {
             Don't have an account?{' '}
             <button
               type="button"
-              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+              className="font-medium text-blue-900 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
             >
               Sign up
             </button>
