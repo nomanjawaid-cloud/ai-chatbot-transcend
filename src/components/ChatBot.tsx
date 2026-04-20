@@ -170,7 +170,8 @@ export default function ChatBot({ userName = "User" }: ChatBotProps) {
       {/* Header */}
       <div className="bg-blue-900 px-6 py-4 flex items-center gap-3">
         <div className="w-12 h-10 rounded-full overflow-hidden flex items-center justify-center">
-          <CiChat1 className="w-8 h-8 object-cover text-white" />
+         
+          <CiChat1 size={32} color="white" />
         </div>
         <div>
           <h2 className="text-white font-semibold text-lg">Transcend</h2>
