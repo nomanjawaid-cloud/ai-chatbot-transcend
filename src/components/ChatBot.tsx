@@ -30,7 +30,13 @@ export default function ChatBot({ userName = "User" }: ChatBotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      text: `Hello ${userName}! I'm your AI assistant for blueprint management.\n\nYou can ask me things like:\n• "show my blueprints"\n• "search blueprints for mathematics"\n• "show my template blueprints"\n• "show public blueprints"\n• "describe blueprint structure"\n\nWhat would you like to know?`,
+      text: `Hello ${userName}! I'm your AI assistant for blueprint management.\n\n
+     You can ask me things like:\n\n• 
+    "show my blueprints"\n\n• 
+    "search blueprints for mathematics"\n\n• 
+    "show my template blueprints"\n\n• 
+    "show public blueprints"\n\n• 
+     What would you like to know?`,
       sender: "bot",
       timestamp: new Date(),
     },
@@ -170,7 +176,6 @@ export default function ChatBot({ userName = "User" }: ChatBotProps) {
       {/* Header */}
       <div className="bg-blue-900 px-6 py-4 flex items-center gap-3">
         <div className="w-12 h-10 rounded-full overflow-hidden flex items-center justify-center">
-         
           <CiChat1 size={32} color="white" />
         </div>
         <div>
