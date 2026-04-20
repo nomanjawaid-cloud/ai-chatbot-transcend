@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useRef, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
+import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import { CiChat1 } from "react-icons/ci";
 
 import { Bot, User, Send } from "lucide-react";
 
@@ -10,12 +11,12 @@ export const Icons = {
   user: User,
   send: Send,
 };
-import { queryBlueprints } from '@/src/lib/api';
+import { queryBlueprints } from "@/src/lib/api";
 
 interface Message {
   id: string;
   text: string;
-  sender: 'user' | 'bot';
+  sender: "user" | "bot";
   timestamp: Date;
   isError?: boolean;
   isStreaming?: boolean;
@@ -25,23 +26,25 @@ interface ChatBotProps {
   userName?: string;
 }
 
-export default function ChatBot({ userName = 'User' }: ChatBotProps) {
+export default function ChatBot({ userName = "User" }: ChatBotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
-      id: '1',
+      id: "1",
       text: `Hello ${userName}! I'm your AI assistant for blueprint management.\n\nYou can ask me things like:\n• "show my blueprints"\n• "search blueprints for mathematics"\n• "show my template blueprints"\n• "show public blueprints"\n• "describe blueprint structure"\n\nWhat would you like to know?`,
-      sender: 'bot',
+      sender: "bot",
       timestamp: new Date(),
     },
   ]);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(
+    null,
+  );
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const streamingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -58,7 +61,11 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
   }, []);
 
   // Streaming effect function
-  const streamMessage = (fullText: string, messageId: string, isError: boolean = false) => {
+  const streamMessage = (
+    fullText: string,
+    messageId: string,
+    isError: boolean = false,
+  ) => {
     let currentIndex = 0;
     const chunkSize = 2; // Characters to add per interval
     const intervalTime = 20; // Milliseconds between chunks (faster = 20ms, slower = 50ms)
@@ -66,8 +73,8 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
     // Create initial empty message
     const initialMessage: Message = {
       id: messageId,
-      text: '',
-      sender: 'bot',
+      text: "",
+      sender: "bot",
       timestamp: new Date(),
       isError,
       isStreaming: true,
@@ -91,8 +98,8 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
           prev.map((msg) =>
             msg.id === messageId
               ? { ...msg, text: fullText, isStreaming: false }
-              : msg
-          )
+              : msg,
+          ),
         );
         setStreamingMessageId(null);
         if (streamingIntervalRef.current) {
@@ -104,8 +111,8 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
         const currentText = fullText.substring(0, currentIndex);
         setMessages((prev) =>
           prev.map((msg) =>
-            msg.id === messageId ? { ...msg, text: currentText } : msg
-          )
+            msg.id === messageId ? { ...msg, text: currentText } : msg,
+          ),
         );
       }
     }, intervalTime);
@@ -113,46 +120,48 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!inputValue.trim() || streamingMessageId) return; // Prevent sending while streaming
 
     const userMessage: Message = {
       id: Date.now().toString(),
       text: inputValue,
-      sender: 'user',
+      sender: "user",
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
     const userQuery = inputValue;
-    setInputValue('');
+    setInputValue("");
     setIsTyping(true);
 
     try {
       // Call the blueprint query API
       const response = await queryBlueprints({ prompt: userQuery });
       setIsTyping(false);
-      
+
       const messageId = (Date.now() + 1).toString();
-      const responseText = response.response || 'No results found.';
-      
+      const responseText = response.response || "No results found.";
+
       // Start streaming the response
       streamMessage(responseText, messageId, false);
-      
     } catch (error) {
       setIsTyping(false);
-      
+
       // Stream error message
       const messageId = (Date.now() + 1).toString();
-      const errorText = error instanceof Error ? error.message : 'Failed to process your query. Please try again.';
+      const errorText =
+        error instanceof Error
+          ? error.message
+          : "Failed to process your query. Please try again.";
       streamMessage(errorText, messageId, true);
     }
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -160,16 +169,11 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
     <div className="flex flex-col h-full bg-white dark:bg-gray-900 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
       {/* Header */}
       <div className="bg-blue-900 px-6 py-4 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
-          <img 
-            src="/logo pic.png" 
-            alt="Bot Logo" 
-            className="w-5 h-5 object-cover bg-white" 
-          />
+        <div className="w-12 h-10 rounded-full overflow-hidden flex items-center justify-center">
+          <CiChat1 className="w-8 h-8 object-cover text-white" />
         </div>
         <div>
-          <h2 className="text-white font-semibold text-lg">AI Assistant</h2>
-          <p className="text-blue-100 text-sm">Online</p>
+          <h2 className="text-white font-semibold text-lg">Transcend</h2>
         </div>
       </div>
 
@@ -179,38 +183,36 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
           <div
             key={message.id}
             className={`flex gap-3 ${
-              message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'
+              message.sender === "user" ? "flex-row-reverse" : "flex-row"
             }`}
           >
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                message.sender === 'user'
-                  ? 'bg-red-600'
-                  : 'bg-white'
+                message.sender === "user" ? "bg-red-600" : "bg-white"
               }`}
             >
-              {message.sender === 'user' ? (
+              {message.sender === "user" ? (
                 <User className="w-5 h-5 text-white" />
               ) : (
-                <img 
-                  src="/logo pic.png" 
-                  alt="Bot Logo" 
-                  className="w-full h-full object-cover rounded-full" 
+                <img
+                  src="/logo pic.png"
+                  alt="Bot Logo"
+                  className="w-full h-full object-cover rounded-full"
                 />
               )}
             </div>
             <div
               className={`flex flex-col max-w-[70%] ${
-                message.sender === 'user' ? 'items-end' : 'items-start'
+                message.sender === "user" ? "items-end" : "items-start"
               }`}
             >
               <div
                 className={`px-4 py-3 rounded-2xl ${
-                  message.sender === 'user'
-                    ? 'bg-blue-600 text-white rounded-tr-sm'
+                  message.sender === "user"
+                    ? "bg-blue-600 text-white rounded-tr-sm"
                     : message.isError
-                    ? 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-tl-sm shadow-md border border-red-200 dark:border-red-800'
-                    : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-tl-sm shadow-md'
+                      ? "bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-tl-sm shadow-md border border-red-200 dark:border-red-800"
+                      : "bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-tl-sm shadow-md"
                 }`}
               >
                 <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert">
@@ -227,17 +229,26 @@ export default function ChatBot({ userName = 'User' }: ChatBotProps) {
         {isTyping && (
           <div className="flex gap-3">
             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 overflow-hidden">
-              <img 
-                src="/logo pic.png" 
-                alt="Bot Logo" 
-                className="w-full h-full object-cover" 
+              <img
+                src="/logo pic.png"
+                alt="Bot Logo"
+                className="w-full h-full object-cover"
               />
             </div>
             <div className="bg-white dark:bg-gray-700 px-4 py-3 rounded-2xl rounded-tl-sm shadow-md">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div
+                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "150ms" }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "300ms" }}
+                ></div>
               </div>
             </div>
           </div>

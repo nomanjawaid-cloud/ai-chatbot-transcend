@@ -16,7 +16,7 @@ export default function Header({ userName, userEmail, onLogout }: HeaderProps) {
           {/* Logo and Title */}
           <div className="flex items-center gap-3">
             <button className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-              <Menu className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+              {/* <Menu className="w-6 h-6 text-gray-600 dark:text-gray-300" /> */}
             </button>
 <div className="flex items-center gap-3">
               {/* <div className="w-10 h-10 bg-blue-900 rounded-lg flex items-center justify-center">
