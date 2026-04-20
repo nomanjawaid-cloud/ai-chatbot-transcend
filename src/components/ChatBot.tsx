@@ -240,6 +240,7 @@ export default function ChatBot({ userName = "User" }: ChatBotProps) {
                 alt="Bot Logo"
                 className="w-full h-full object-cover"
               />
+              
             </div>
             <div className="bg-white dark:bg-gray-700 px-4 py-3 rounded-2xl rounded-tl-sm shadow-md">
               <div className="flex gap-1">
